@@ -10,9 +10,8 @@ from PIL import Image
 import torchvision.transforms as T
 from random import randint
 import random
-from chamferdist import ChamferDistance
-from sinkhorn import sinkhorn
-from geomloss import SamplesLoss
+#from chamferdist import ChamferDistance
+#from geomloss import SamplesLoss
 from model.michelangelo import *
 from model.michelangelo.models.tsal.tsal_base import ShapeAsLatentModule
 from model.michelangelo.utils import instantiate_from_config
@@ -91,7 +90,8 @@ enable_rendering_loss = 0  # Disabled - no rendering loss
 
 # Path to your single splat file
 #ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/splat_3rdcar/splat.ply"
-ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/splatObj/splat.ply"
+#ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/splatObj/splat.ply"
+ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/point_cloud_15000.ply"
 
 # Save path
 save_path = "/leonardo_work/IscrC_GEN-X3D/GS/3DGSAE/Can3Tok-master/resultsObj/"
@@ -120,8 +120,8 @@ wandb.init(
 print("[INFO] W&B initialized")
 
 # ===== LOSS FUNCTIONS =====
-chamferDist = ChamferDistance()
-sinkhorn_eff = SamplesLoss(loss="sinkhorn", p=2, blur=.05)
+chamferDist = ()#ChamferDistance()
+sinkhorn_eff = ()#SamplesLoss(loss="sinkhorn", p=2, blur=.05)
 
 # ===== LOAD MODEL =====
 print("[INFO] Loading Can3Tok model...")

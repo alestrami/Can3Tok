@@ -117,10 +117,10 @@ class gs_dataset(data.Dataset):
         
         # ---- Padding to fixed size (40000 Gaussians) ----
         target_num_gs = 40000
-        if gs_full_params.shape[0] != target_num_gs:
+        num_actual = gs_full_params.shape[0]
+        if num_actual < target_num_gs:
             # Create zero-padded array
             padded_params = np.zeros([target_num_gs, 18], dtype=np.float32)
-            
             # Fill with actual data
             num_actual = gs_full_params.shape[0]
             padded_params[:num_actual, :] = gs_full_params
@@ -130,7 +130,11 @@ class gs_dataset(data.Dataset):
                 padded_params[num_actual:, :] = gs_full_params[-1, :]
             
             gs_full_params = padded_params
+        if num_actual > target_num_gs:
+            # Take only the first 40k Gaussians
+            gs_full_params = gs_full_params[:target_num_gs, :]
         
+
         return gs_full_params, index
 
 

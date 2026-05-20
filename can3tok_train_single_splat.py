@@ -72,7 +72,7 @@ def save_gaussians_as_ply(gaussians_data, filepath):
 
 
 # ===== DEVICE SETUP =====
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3,4,5,6,7'
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"[INFO] Using device: {device}")
 
@@ -91,10 +91,10 @@ enable_rendering_loss = 0  # Disabled - no rendering loss
 # Path to your single splat file
 #ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/splat_3rdcar/splat.ply"
 #ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/splatObj/splat.ply"
-ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/point_cloud_15000.ply"
-
+#ply_path = "/leonardo_work/IscrC_GEN-X3D/GS/exports/point_cloud_15000.ply"
+ply_path = "/data04/alestrami/Points2/data/000-006/0ad3d5e1c18c4fa1ab096893b39f251e/ckpts/point_cloud_15000.ply"
 # Save path
-save_path = "/leonardo_work/IscrC_GEN-X3D/GS/3DGSAE/Can3Tok-master/resultsObj/"
+save_path = "./resultsObj/"
 os.makedirs(save_path, exist_ok=True)
 print(f"[INFO] Results will be saved to: {save_path}")
 
@@ -194,8 +194,9 @@ for epoch in tqdm(range(num_epochs)):
         if epoch % 5 == 0 and epoch > 1 and random_rotation == 1:
             rand_rot_comp = special_ortho_group.rvs(3)
             rand_rot = torch.tensor(np.dot(rand_rot_comp, rand_rot_comp.T), dtype=torch.float32).to(UV_gs_batch.device)
-            UV_gs_batch[:, :, 7:10] = UV_gs_batch[:, :, 7:10] @ rand_rot  # Rotate scale
-        
+            #UV_gs_batch[:, :, 7:10] = UV_gs_batch[:, :, 7:10] @ rand_rot  # Rotate scale
+            UV_gs_batch[:,:,4:7] = UV_gs_batch[:,:,4:7] @ rand_rot  # rotates XYZ positions ✓
+
         # Zero gradients
         optimizer.zero_grad()
         

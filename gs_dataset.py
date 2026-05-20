@@ -11,7 +11,8 @@ from spconv.pytorch.utils import PointToVoxel
 
 
 class gs_dataset(data.Dataset):
-    def __init__(self, root, resol, random_permute=False, train=True, single_ply_path=None):
+    def __init__(self, root, resol, random_permute=False, train=True, single_ply_path=None,
+                 ply_subpath="ckpts/point_cloud_15000.ply"):
         """
         Args:
             root: Path to dataset folder (ignored if single_ply_path is provided)
@@ -24,6 +25,7 @@ class gs_dataset(data.Dataset):
         self.resol = resol
         self.random_permute = random_permute
         self.single_ply_path = single_ply_path
+        self.ply_subpath = ply_subpath
         
         # If single_ply_path is provided, use single-file mode
         if single_ply_path is not None:
@@ -42,7 +44,7 @@ class gs_dataset(data.Dataset):
             gs_params_path_each = self.single_ply_path
         else:
             # Multi-scene mode (original behavior)
-            gs_params_path_each = self.data_path + self.folder_path_each[index] + f"/point_cloud/iteration_30000/gs_filtered.ply"
+            gs_params_path_each = os.path.join(self.data_path, self.folder_path_each[index], self.ply_subpath)
         
         # Load PLY file
         plydata = PlyData.read(gs_params_path_each)
@@ -76,20 +78,16 @@ class gs_dataset(data.Dataset):
         coord = xyz - coord_min
 
         out = voxelize(coord, 0.8, 'fnv')
-        uniq_idx, count = out[0], out[1] 
-        #uniq_idx, count = voxelize(coord, 0.8, 'fnv')
+        # voxelize may return 1 or 2 elements depending on the scene; guard both cases
+        uniq_idx = out[0] if len(out) >= 1 else None
 
         num_gaussians = xyz.shape[0]
 
-        # FIX: Handle voxelize output - ensure it's an array with same length as num_gaussians
-        uniq_idx = np.asarray(uniq_idx, dtype=np.float32)
+        uniq_idx = np.asarray(uniq_idx, dtype=np.float32) if uniq_idx is not None else np.array([])
 
-        # If scalar or wrong shape, create a dummy voxel ID array
-        if uniq_idx.ndim == 0 or uniq_idx.size == 1:
-            # voxelize returned scalar or single element - create sequential IDs instead
+        if uniq_idx.ndim == 0 or uniq_idx.size == 0 or uniq_idx.size == 1:
             uniq_idx = np.arange(num_gaussians, dtype=np.float32)
         elif len(uniq_idx) != num_gaussians:
-            # Voxelize returned wrong number of IDs - use sequential instead
             print(f"[WARNING] voxelize returned {len(uniq_idx)} IDs for {num_gaussians} Gaussians. Using sequential IDs.")
             uniq_idx = np.arange(num_gaussians, dtype=np.float32)
 

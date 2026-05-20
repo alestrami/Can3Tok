@@ -45,8 +45,8 @@ import matplotlib.pyplot as plt
 # DEVICE = torch.device("cuda", local_rank)
 
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = '0'
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3,4,5,6,7'
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
